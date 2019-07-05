@@ -1,27 +1,24 @@
-# Node modules
+##
+# Project
+##
+
+# Build directory
+dist
+
+##
+# Node
+##
+
+# Dependency directory
 node_modules
 
-# .env files
-.env.*
-
-# Log files
+# Logs
+logs
 *.log
+npm-debug.log*
 
-# Filesystem descriptors
-.DS_Store
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw*
-
-# Use either yarn.lock or package-lock.json
-# Uncomment one of them to mainain a single lockfile
-# package-lock.json
-# yarn.lock
-
-## Project-specific files
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
