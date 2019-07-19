@@ -1,7 +1,25 @@
 {
-  "presets": [["@babel/preset-env", { "modules": false }]],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "corejs": 3,
+        "modules": false,
+        "useBuiltIns": "entry"
+      }
+    ]
+  ],
   "plugins": [
     "@babel/plugin-syntax-dynamic-import",
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": false,
+        "helpers": false,
+        "regenerator": true,
+        "useESModules": false
+      }
+    ],
     "syntax-trailing-function-commas"
   ],
   "env": {
@@ -19,7 +37,7 @@
           }
         ],
         "syntax-trailing-function-commas"
-      ],
+      ]
     }
   }
 }

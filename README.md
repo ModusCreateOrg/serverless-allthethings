@@ -83,12 +83,16 @@ Project description - one or two paragraphs. The enemy is dark and creates major
   docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind serverless-allthethings npm install --unsafe-perm
   ```
 
+  ```bash
+  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind serverless-allthethings bash -c "cd ./src/custom-rds && npm i --unsafe-perm"
+  ```
+
 #### Start
 
 - Start the development server. You can access the website at: `http://localhost`
 
   ```bash
-  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind -p 80:80 serverless-allthethings
+  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind -p 80:80 -e APPSYNC_GRAPHQL_API_REGION="us-east-1" -e APPSYNC_GRAPHQL_API_URL="null" serverless-allthethings
   ```
 
 #### Lint

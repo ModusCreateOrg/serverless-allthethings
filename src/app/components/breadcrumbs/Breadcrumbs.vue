@@ -27,7 +27,7 @@ export default {
       routeHomeName: RouterConstants.ROUTE.HOME.NAME,
     };
   },
-  name: "SattBreadcrumbs",
+  name: "VueLambdaBreadcrumbs",
   props: {
     links: {
       default() {
@@ -38,14 +38,14 @@ export default {
       validator(links) {
         return links.every(
           (link) =>
-            ((link.hasOwnProperty("name") &&
+            ((Object.prototype.hasOwnProperty.call(link, "name") &&
               Object.prototype.toString.call(link.name) === "[object String]" &&
               link.name.length) ||
-              (link.hasOwnProperty("path") &&
+              (Object.prototype.hasOwnProperty.call(link, "path") &&
                 Object.prototype.toString.call(link.path) ===
                   "[object String]" &&
                 link.path.length)) &&
-            link.hasOwnProperty("title") &&
+            Object.prototype.hasOwnProperty.call(link, "title") &&
             Object.prototype.toString.call(link.title) === "[object String]" &&
             link.title.length,
         );

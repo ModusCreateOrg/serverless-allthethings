@@ -1,8 +1,13 @@
-import "es6-promise/auto";
+import "core-js/stable";
 
+import createAppSyncClient from "./appsync";
+import createApolloProvider from "./apollo";
 import createApp from "./app";
 
-const { app, router, store } = createApp();
+const appSyncClient = createAppSyncClient({ store });
+const apolloProvider = createApolloProvider({ appSyncClient });
+
+const { app, router, store } = createApp({ apolloProvider });
 
 if (window.__INITIAL_STATE__) {
   // Prime the store with the server initialized state that was automatically inlined into the page markup

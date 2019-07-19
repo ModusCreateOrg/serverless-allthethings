@@ -84,8 +84,6 @@ module.exports = webpackMerge(webpackBaseConfig, {
     app: path.resolve(__dirname, "../entry.client.js"),
   },
   module: {
-    // Necessary for Vuex (in ../app.js)
-    noParse: /es6-promise\.js$/,
     rules: [
       {
         loader: "vue-loader",

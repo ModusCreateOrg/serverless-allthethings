@@ -75,6 +75,14 @@ module.exports = {
       hashDigestLength: 32,
       hashFunction: "md5",
     }),
+    new webpack.DefinePlugin({
+      "process.env.APPSYNC_GRAPHQL_API_URL": JSON.stringify(
+        process.env.APPSYNC_GRAPHQL_API_URL,
+      ),
+      "process.env.APPSYNC_GRAPHQL_API_REGION": JSON.stringify(
+        process.env.APPSYNC_GRAPHQL_API_REGION,
+      ),
+    }),
   ],
   resolve: {
     alias: {

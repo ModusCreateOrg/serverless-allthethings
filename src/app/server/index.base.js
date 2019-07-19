@@ -32,10 +32,15 @@ const VUE_TEMPLATE = `<!DOCTYPE html>
   <!--vue-meta-link-outlet-->
   <!--vue-meta-style-outlet-->
   <!--vue-meta-script-outlet-->
+  {{{ renderResourceHints() }}}
+  {{{ renderStyles() }}}
 </head>
 <body>
-<!--vue-meta-noscript-outlet-->
-<!--vue-ssr-outlet-->
+  <!--vue-meta-noscript-outlet-->
+  <!--vue-ssr-outlet-->
+  {{{ renderState() }}}
+  {{{ renderState({ contextKey: 'apolloState', windowKey: '__APOLLO_STATE__' }) }}}
+  {{{ renderScripts() }}}
 </body>
 </html>`;
 
@@ -139,7 +144,7 @@ function on404(request, callback) {
   callback(null, request);
 }
 
-function on500(error, request, callback) {
+function on500(bundleRenderer, error, request, callback) {
   console.error("ERROR: HTTP 500", {
     uri: request.uri,
     error,
@@ -147,6 +152,7 @@ function on500(error, request, callback) {
 
   // Render /error/500
   renderHtml(
+    bundleRenderer,
     request,
     {
       status: ResponseHelper.Constants.STATUS_VALUE_500,
@@ -158,7 +164,13 @@ function on500(error, request, callback) {
   );
 }
 
-function onUnsuccessfulRender(error, request, response, callback) {
+function onUnsuccessfulRender(
+  bundleRenderer,
+  error,
+  request,
+  response,
+  callback,
+) {
   if (error && "httpCode" in error) {
     switch (error.httpCode) {
       case 301: {
@@ -191,7 +203,7 @@ function onUnsuccessfulRender(error, request, response, callback) {
     });
   }
 
-  return on500(error, request, callback);
+  return on500(bundleRenderer, error, request, callback);
 }
 
 function onSuccessfulRender(
@@ -260,7 +272,9 @@ function renderHtml(bundleRenderer, request, response, callback) {
         callback,
       ),
     )
-    .catch((error) => onUnsuccessfulRender(error, request, response, callback));
+    .catch((error) => {
+      onUnsuccessfulRender(bundleRenderer, error, request, response, callback);
+    });
 }
 
 module.exports = {

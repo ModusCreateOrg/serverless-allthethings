@@ -5,7 +5,7 @@ set -u
 set -o pipefail
 
 DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ ! -d "$DIR" ]]; then DIR="${PWD}"; fi
 
 S3_BUCKET_NAME_ARTIFACTS="$(aws cloudformation list-exports --query 'Exports[?Name==`ServerlessAllTheThingsS3BucketArtifactsName`].Value' --output text)"
 S3_BUCKET_NAME_STATIC="$(aws cloudformation list-exports --query 'Exports[?Name==`ServerlessAllTheThingsS3BucketStaticName`].Value' --output text)"
@@ -15,8 +15,10 @@ S3_PATH_STATIC_BRANCH_SLUG="s3://$S3_BUCKET_NAME_STATIC/$BRANCH_SLUG"
 cd "$DIR/../dist/" zip -9qry "dist.zip" "./" && cd -
 cd "$DIR/../dist/app" && zip -9qry "lambda.zip" "./" && cd -
 cd "$DIR/../dist/viewer-request" && zip -9qry "lambda.zip" "./index.js" && cd -
+cd "$DIR/../dist/custom-rds" && zip -9qry "lambda.zip" "./index.js" && cd -
 aws s3 cp "$DIR/../dist/app/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/app/lambda.zip"
 aws s3 cp "$DIR/../dist/viewer-request/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/viewer-request/lambda.zip"
+aws s3 cp "$DIR/../dist/custom-rds/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/custom-rds/lambda.zip"
 
 # /*
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.css" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "text/css"

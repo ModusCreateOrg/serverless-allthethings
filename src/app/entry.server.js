@@ -1,3 +1,5 @@
+import ApolloSSR from "vue-apollo/ssr";
+
 import createApp from "./app";
 
 /*
@@ -8,7 +10,7 @@ import createApp from "./app";
  */
 export default (bundleRendererContext) =>
   new Promise((resolve, reject) => {
-    const { app, router, store } = createApp();
+    const { apolloProvider, app, router, store } = createApp();
     const { uri } = bundleRendererContext;
     const { fullPath: properlyStructuredUri, matched } = router.resolve(
       uri,
@@ -35,7 +37,17 @@ export default (bundleRendererContext) =>
       // automatically inlined into the page markup
       Object.assign(bundleRendererContext, {
         httpCode,
-        state: store.state,
+        rendered: () => {
+          // After the app is rendered, our store is now
+          // filled with the state from our components.
+          // When we attach the state to the context, and the `template` option
+          // is used for the renderer, the state will automatically be
+          // serialized and injected into the HTML as `window.__INITIAL_STATE__`.
+          Object.assign(bundleRendererContext, {
+            apolloState: ApolloSSR.getStates(apolloProvider),
+            state: store.state,
+          });
+        },
         vueMeta: app.$meta(),
       });
 

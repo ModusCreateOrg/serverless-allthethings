@@ -5,7 +5,7 @@ set -u
 set -o pipefail
 
 DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ ! -d "$DIR" ]]; then DIR="${PWD}"; fi
 
 echo -e "\n[Check css]\n"
 "$DIR/../node_modules/.bin/stylelint-config-prettier-check"

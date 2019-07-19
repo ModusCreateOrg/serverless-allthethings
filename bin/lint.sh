@@ -5,7 +5,7 @@ set -u
 set -o pipefail
 
 DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ ! -d "$DIR" ]]; then DIR="${PWD}"; fi
 
 cd "$DIR/.."
 

@@ -10,7 +10,7 @@ import createRouter from "./router";
  * Export a function that creates the Vue app for SSR.
  * Used in './entry.client.js' and './entry.server.js'.
  */
-const createApp = () => {
+const createApp = ({ apolloProvider } = { apolloProvider: false }) => {
   const store = createStore();
   const router = createRouter();
 
@@ -19,12 +19,13 @@ const createApp = () => {
   Vue.use(Meta);
 
   const app = new Vue({
+    apolloProvider,
     render: (h) => h(Layout),
     router,
     store,
   });
 
-  return { app, router, store };
+  return { apolloProvider, app, router, store };
 };
 
 export default createApp;

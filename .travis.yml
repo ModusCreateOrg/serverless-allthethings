@@ -15,6 +15,7 @@ env:
 cache:
   directories:
     - node_modules
+    - src/custom-rds/node_modules
     - dist
 
 stages:
@@ -29,7 +30,7 @@ jobs:
     # Install
     - stage: install
       name: Install Npm Dependencies
-      script: npm ci --unsafe-perm
+      script: npm ci --unsafe-perm && cd ./src/custom-rds && npm ci --unsafe-perm
     # Predeploy
     - stage: predeploy
       name: Lint (Validate Rules Against Prettier)

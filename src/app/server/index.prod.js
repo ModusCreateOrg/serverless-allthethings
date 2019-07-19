@@ -15,6 +15,7 @@ const clientManifest = require("../../../dist/tmp/app/vue-ssr-client-manifest.js
 
 const bundleRenderer = createBundleRenderer(serverBundle, {
   clientManifest,
+  inject: false,
   shouldPrefetch: () => false,
   shouldPreload: (file, type) => type === "script",
   template: VUE_TEMPLATE,
