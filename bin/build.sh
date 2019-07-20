@@ -10,8 +10,8 @@ if [[ ! -d "${DIR}" ]]; then DIR="${PWD}"; fi
 export NODE_ENV="production"
 
 echo -e "\n[Create Clean dist Directory]\n"
-rm -rf ./dist
-mkdir -p ./dist/tmp
+rm -rf "${DIR}/../dist"
+mkdir -p "${DIR}/../dist/tmp"
 
 echo -e "\n[Create Vue Client]\n"
 "${DIR}/../node_modules/.bin/webpack" --config "${DIR}/../src/app/webpack/webpack.vue.client.config.js" --progress --hide-modules
@@ -22,22 +22,22 @@ echo -e "\n[Create Vue Server]\n"
 echo -e "\n[Create App]\n"
 "${DIR}/../node_modules/.bin/webpack" --config "${DIR}/../src/app/webpack/webpack.lambda.config.js" --progress --hide-modules
 
+echo -e "\n[Create Origin Request]\n"
+"${DIR}/../node_modules/.bin/webpack" --config "${DIR}/../src/origin-request/webpack.config.js" --progress --hide-modules
+
 echo -e "\n[Create Viewer Request]\n"
 "${DIR}/../node_modules/.bin/webpack" --config "${DIR}/../src/viewer-request/webpack.config.js" --progress --hide-modules
 
 echo -e "\n[Create Custom RDS]\n"
 "${DIR}/../node_modules/.bin/webpack" --config "${DIR}/../src/custom-rds/webpack.config.js" --progress --hide-modules
 
-echo -e "\n[Compress service-worker.js]\n"
-node "${DIR}/compress-service-worker-js.js"
+echo -e "\n[Create Pre-rendered Pages]\n"
+node "${DIR}/create-pre-rendered-pages.js"
 
-echo -e "\n[Install App Dependencies]\n"
-cd "${DIR}/../dist/app" && npm ci --unsafe-perm && cd -
-
-echo -e "\n[Create pwa.html]\n"
-node "${DIR}/create-pwa-html.js"
+# Rebuild the client to support pwa fallback
+echo -e "\n[Implement SWPrecacheWebpackPlugin Workaround]\n"
+cp "${DIR}/../dist/static/pwa/index.html" "${DIR}/../dist/static/pwa.html"
+"${DIR}/../node_modules/.bin/webpack" --config "${DIR}/../src/app/webpack/webpack.vue.client.config.js" --progress --hide-modules
 
 echo -e "\n[Clean Up]\n"
-rm -fr ./dist/tmp
-rm -fr ./dist/app/package.json
-rm -fr ./dist/app/package-lock.json
+rm -fr "${DIR}/../dist/tmp"

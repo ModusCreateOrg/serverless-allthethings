@@ -77,14 +77,8 @@ Project description - one or two paragraphs. The enemy is dark and creates major
 
 - Install [npm](https://www.npmjs.com "Npm") dependencies
 
-- Note: `unsafe-perm` is used so that iltorb can successfully install a pre-compiled binary for compression (rather than building one during `install`)
-
   ```bash
-  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind serverless-allthethings npm install --unsafe-perm
-  ```
-
-  ```bash
-  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind serverless-allthethings bash -c "cd ./src/custom-rds && npm i --unsafe-perm"
+  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind serverless-allthethings bash ./bin/install.sh
   ```
 
 #### Start

@@ -10,5 +10,5 @@ require("@babel/register")({
   ],
 });
 
-const CreatePwaHtmlHelper = require("../src/shared/helpers/create-pwa-html-helper");
-CreatePwaHtmlHelper.createPwaHtml();
+const CreatePreRenderedPagesHelper = require("../src/shared/helpers/create-pre-rendered-pages-helper");
+CreatePreRenderedPagesHelper.createPreRenderedPages();

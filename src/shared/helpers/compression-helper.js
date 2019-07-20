@@ -6,76 +6,37 @@ const COMPRESSION_NONE_ENCODING = "none";
 const COMPRESSION_NONE_EXTENSION = "";
 const HEADER_ACCEPT_ENCODING = "accept-encoding";
 const HEADER_CONTENT_ENCODING = "content-encoding";
-const HEADER_X_ACCEPT_ENCODING = "x-accept-encoding";
-const PRECOMPRESSED_EXTENSIONS = ["png"];
+const PRECOMPRESSED_EXTENSIONS = ["png", "zip"];
 
 const ENCODING_BASE64 = "base64";
 const HEADER_VALUE_KEY = "value";
 
-function compressWithGzip({ string = "" } = { string: "" }) {
-  const zlib = require("zlib");
-  return zlib.gzipSync(string, { level: zlib.Z_BEST_COMPRESSION });
-}
-
-// DEV: iltorb is externalized to improve portability
-function compressWithBrotli(
-  { iltorb = { compressSync: () => "" }, string = "" } = {
-    iltorb: { compressSync: () => "" },
-    string: "",
-  },
-) {
-  return iltorb.compressSync(Buffer.from(string, "utf8"));
-}
-
-function getAcceptableEncoding({ headers = {} } = { headers: {} }) {
+function getAcceptableEncodings({ headers = {} } = { headers: {} }) {
   return headers &&
-    HEADER_X_ACCEPT_ENCODING in headers &&
-    headers[HEADER_X_ACCEPT_ENCODING].length &&
-    HEADER_VALUE_KEY in headers[HEADER_X_ACCEPT_ENCODING][0]
-    ? headers[HEADER_X_ACCEPT_ENCODING][0][HEADER_VALUE_KEY]
+    HEADER_ACCEPT_ENCODING in headers &&
+    headers[HEADER_ACCEPT_ENCODING].length &&
+    HEADER_VALUE_KEY in headers[HEADER_ACCEPT_ENCODING][0]
+    ? headers[HEADER_ACCEPT_ENCODING][0][HEADER_VALUE_KEY].split(",").map(
+        (encoding) =>
+          encoding
+            .substring(
+              0,
+              encoding.indexOf(";") > -1
+                ? encoding.indexOf(";")
+                : encoding.length,
+            )
+            .trim(),
+      )
     : COMPRESSION_NONE_ENCODING;
 }
 
-// DEV: iltorb is externalized to improve portability
-function getBrCompressedResponseProperties(
-  { html = "", iltorb = { compressSync: () => "" } } = {
-    html: "",
-    iltorb: { compressSync: () => "" },
-  },
-) {
-  try {
-    return {
-      body: iltorb
-        .compressSync(Buffer.from(html, "utf8"))
-        .toString(ENCODING_BASE64),
-      bodyEncoding: ENCODING_BASE64,
-      headers: {
-        [HEADER_CONTENT_ENCODING]: [
-          { [HEADER_VALUE_KEY]: COMPRESSION_BROTLI_ENCODING },
-        ],
-      },
-    };
-  } catch (error) {
-    console.error("ERROR: Failed to compress using Brotli", { error });
-  }
-  return {};
-}
-
 function getCompressedResponseProperties(
-  {
-    encoding = COMPRESSION_NONE_ENCODING,
-    html = "",
-    iltorb = { compressSync: () => "" },
-  } = {
+  { encoding = COMPRESSION_NONE_ENCODING, html = "" } = {
     encoding: COMPRESSION_NONE_ENCODING,
     html: "",
-    iltorb: { compressSync: () => "" },
   },
 ) {
   switch (encoding) {
-    case COMPRESSION_BROTLI_ENCODING: {
-      return getBrCompressedResponseProperties({ html, iltorb });
-    }
     case COMPRESSION_GZIP_ENCODING: {
       return getGzipCompressedResponseProperties({ html });
     }
@@ -86,16 +47,14 @@ function getCompressedResponseProperties(
 }
 
 function getCompressionExtension({ headers = {} } = { headers: {} }) {
-  switch (getAcceptableEncoding({ headers })) {
-    case COMPRESSION_BROTLI_ENCODING: {
-      return COMPRESSION_BROTLI_EXTENSION;
-    }
-    case COMPRESSION_GZIP_ENCODING: {
-      return COMPRESSION_GZIP_EXTENSION;
-    }
-    default: {
-      return COMPRESSION_NONE_EXTENSION;
-    }
+  const acceptableEncodings = getAcceptableEncodings({ headers });
+
+  if (acceptableEncodings.includes(COMPRESSION_BROTLI_ENCODING)) {
+    return COMPRESSION_BROTLI_EXTENSION;
+  } else if (acceptableEncodings.includes(COMPRESSION_GZIP_ENCODING)) {
+    return COMPRESSION_GZIP_EXTENSION;
+  } else {
+    return COMPRESSION_NONE_EXTENSION;
   }
 }
 
@@ -123,9 +82,7 @@ function getOptimalEncoding(
     headers[HEADER_ACCEPT_ENCODING].length &&
     HEADER_VALUE_KEY in headers[HEADER_ACCEPT_ENCODING][0]
   ) {
-    const acceptableEncodings = headers[HEADER_ACCEPT_ENCODING][0][
-      HEADER_VALUE_KEY
-    ].split(", ");
+    const acceptableEncodings = getAcceptableEncodings({ headers });
     if (uri.endsWith(COMPRESSION_BROTLI_EXTENSION)) {
       return COMPRESSION_BROTLI_ENCODING;
     } else if (uri.endsWith(COMPRESSION_GZIP_EXTENSION)) {
@@ -138,18 +95,6 @@ function getOptimalEncoding(
   }
 
   return COMPRESSION_NONE_ENCODING;
-}
-
-function getXAcceptEncodingHeader(
-  { headers = {}, uri = "" } = { headers: {}, uri: "" },
-) {
-  return {
-    [HEADER_X_ACCEPT_ENCODING]: [
-      {
-        [HEADER_VALUE_KEY]: getOptimalEncoding({ headers, uri }),
-      },
-    ],
-  };
 }
 
 function isBrCompressible(
@@ -189,17 +134,11 @@ module.exports = {
   COMPRESSION_NONE_ENCODING,
   COMPRESSION_NONE_EXTENSION,
   HEADER_ACCEPT_ENCODING,
-  HEADER_X_ACCEPT_ENCODING,
   PRECOMPRESSED_EXTENSIONS,
-  compressWithGzip,
-  compressWithBrotli,
-  getAcceptableEncoding,
-  getBrCompressedResponseProperties,
   getCompressedResponseProperties,
   getCompressionExtension,
   getGzipCompressedResponseProperties,
   getOptimalEncoding,
-  getXAcceptEncodingHeader,
   isBrCompressible,
   isGzipCompressible,
   isPrecompressed,

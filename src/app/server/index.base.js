@@ -1,10 +1,10 @@
 const crypto = require("crypto");
-const iltorb = require("iltorb");
 
 const CompressionHelper = require("../../shared/helpers/compression-helper");
 const ResponseHelper = require("../../shared/helpers/response-helper");
 
 const ENCODING_BASE64 = "base64";
+const HEADER_VALUE_KEY = "value";
 
 const HEADER_CONTENT_SECURITY_POLICY_VALUE_DEFAULT =
   "default-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; block-all-mixed-content";
@@ -126,22 +126,23 @@ function on301(toUri, request, callback) {
   });
 }
 
-function on404(request, callback) {
-  const { headers, uri } = request;
-
-  const compressionExtension = CompressionHelper.getCompressionExtension({
-    headers,
+function on404(bundleRenderer, request, callback) {
+  console.warn("WARN: HTTP 404", {
+    uri: request.uri,
   });
 
-  if (
-    !CompressionHelper.isPrecompressed({ uri }) &&
-    compressionExtension &&
-    !uri.endsWith(compressionExtension)
-  ) {
-    request.uri = `${uri}${compressionExtension}`;
-  }
-
-  callback(null, request);
+  // Render /error/404
+  renderHtml(
+    bundleRenderer,
+    request,
+    {
+      status: ResponseHelper.Constants.STATUS_VALUE_404,
+      statusDescription: ResponseHelper.httpCodeToStatusDescription({
+        httpCode: ResponseHelper.Constants.STATUS_VALUE_404,
+      }),
+    },
+    callback,
+  );
 }
 
 function on500(bundleRenderer, error, request, callback) {
@@ -149,7 +150,6 @@ function on500(bundleRenderer, error, request, callback) {
     uri: request.uri,
     error,
   });
-
   // Render /error/500
   renderHtml(
     bundleRenderer,
@@ -180,25 +180,25 @@ function onUnsuccessfulRender(
         break;
       }
       case 404: {
-        if (!response) {
-          return on404(request, callback);
-        }
-        break;
+        return on404(bundleRenderer, request, callback);
+      }
+      default: {
+        return on500(bundleRenderer, error, request, callback);
       }
     }
   } else if (response && "status" in response && response.status.length) {
-    // Respond with a 500 error on failure to render an error page
-    // This block prevents recursive on500() function calls
-    console.error(`ERROR: HTTP 500`, {
+    // Respond with a status error on failure to render an error page
+    // This block prevents recursive on404()/on500() function calls
+    console.error(`ERROR: HTTP ${response.status}`, {
       request,
       response,
       uri: request.uri,
     });
     return callback(null, {
       headers: { ...BASE_HTML_RESPONSE_HEADERS },
-      status: ResponseHelper.Constants.STATUS_VALUE_500,
+      status: response.status,
       statusDescription: ResponseHelper.httpCodeToStatusDescription({
-        httpCode: ResponseHelper.Constants.STATUS_VALUE_500,
+        httpCode: response.status,
       }),
     });
   }
@@ -228,13 +228,20 @@ function onSuccessfulRender(
     injectableVueMeta,
   );
   const html = removeLinkStylesheets(htmlWithVueMeta);
+  const acceptableEncodings = request.headers[
+    CompressionHelper.HEADER_ACCEPT_ENCODING
+  ][0][HEADER_VALUE_KEY].split(", ");
+  const uri = request.uri;
+  const isGzipCompressible = CompressionHelper.isGzipCompressible({
+    acceptableEncodings,
+    uri,
+  });
   const compressedResponseProperties = CompressionHelper.getCompressedResponseProperties(
     {
-      encoding: CompressionHelper.getAcceptableEncoding({
-        headers: request.headers,
-      }),
+      encoding: isGzipCompressible
+        ? CompressionHelper.COMPRESSION_GZIP_ENCODING
+        : CompressionHelper.COMPRESSION_NONE_ENCODING,
       html,
-      iltorb,
     },
   );
 

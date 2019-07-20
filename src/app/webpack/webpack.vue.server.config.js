@@ -1,8 +1,5 @@
 const path = require("path");
 
-const CompressionPlugin = require("compression-webpack-plugin");
-const iltorbCompress = require("iltorb").compress;
-const nodeExternals = require("webpack-node-externals");
 const postcssPresetEnv = require("postcss-preset-env");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const VueSSRServerPlugin = require("vue-server-renderer/server-plugin");
@@ -21,32 +18,8 @@ const plugins = [
   }),
 ];
 
-if (process.env.NODE_ENV !== "development") {
-  plugins.push(
-    ...[
-      new CompressionPlugin({
-        exclude: "vue-ssr-server-bundle.json",
-        minRatio: 2,
-        // Not png
-        test: /\.(css|csv|gif|htm|html|ico|jpeg|jpg|js|json|svg|txt|webmanifest|xml)$/,
-      }),
-      new CompressionPlugin({
-        algorithm(input, compressionOptions, callback) {
-          return iltorbCompress(input, callback);
-        },
-        exclude: "vue-ssr-client-manifest.json",
-        filename: "[path].br[query]",
-        minRatio: 2,
-        // Not png
-        test: /\.(css|csv|gif|htm|html|ico|jpeg|jpg|js|json|svg|txt|webmanifest|xml)$/,
-      }),
-    ],
-  );
-}
-
 module.exports = webpackMerge(webpackBaseConfig, {
   entry: path.resolve(__dirname, "../entry.server.js"),
-  externals: [nodeExternals()],
   module: {
     rules: [
       {

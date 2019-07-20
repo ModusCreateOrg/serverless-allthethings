@@ -7,7 +7,7 @@ RUN yum -y update
 # Install tar
 RUN yum install -y tar.x86_64 xz
 
-# Install Node 8.10.0 and NPM 6.9.0
+# Install node 8.10.0 and npm 6.9.0
 ENV NODE_VERSION 8.10.0
 ENV NODE_DIR /usr/local/node
 ENV NODE_PATH "${NODE_DIR}/v${NODE_VERSION}"
@@ -20,9 +20,17 @@ RUN mv "${NODE_DIR}/node-v${NODE_VERSION}-linux-x64" "${NODE_PATH}"
 
 RUN npm install -g npm@6.9.0
 
-# Install AWS CLI
+# Install python and pip
 RUN yum install -y python3
+
+# Install aws cli
 RUN python3 -m pip install awscli
+
+# Install gzip
+RUN yum install -y gzip
+
+# Install brotli
+RUN yum install -y brotli
 
 # Clean up
 RUN yum clean all

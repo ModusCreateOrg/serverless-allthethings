@@ -16,6 +16,8 @@ cache:
   directories:
     - node_modules
     - src/custom-rds/node_modules
+    - src/origin-request/node_modules
+    - src/viewer-request/node_modules
     - dist
 
 stages:
@@ -30,7 +32,7 @@ jobs:
     # Install
     - stage: install
       name: Install Npm Dependencies
-      script: npm ci --unsafe-perm && cd ./src/custom-rds && npm ci --unsafe-perm
+      script: bash ./bin/install.sh
     # Predeploy
     - stage: predeploy
       name: Lint (Validate Rules Against Prettier)
@@ -44,7 +46,7 @@ jobs:
     # Archive
     - stage: archive
       name: Archive
-      script: bash ./bin/archive-branch-build-artifacts.sh
+      script: bash ./bin/archive.sh
     # Deploy
     - stage: deploy
       name: Deploy
@@ -53,6 +55,8 @@ jobs:
 before_install:
   - pip install --user awscli
   - npm install -g npm@6.9.0
+  - sudo apt-get update
+  - sudo apt-get install -y brotli
 
 install:
   -  # Skip

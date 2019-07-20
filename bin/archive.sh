@@ -12,11 +12,16 @@ S3_BUCKET_NAME_STATIC="$(aws cloudformation list-exports --query 'Exports[?Name=
 S3_PATH_ARTIFACTS_COMMIT="s3://$S3_BUCKET_NAME_ARTIFACTS/$COMMIT"
 S3_PATH_STATIC_BRANCH_SLUG="s3://$S3_BUCKET_NAME_STATIC/$BRANCH_SLUG"
 
-cd "$DIR/../dist/" zip -9qry "dist.zip" "./" && cd -
+cd "$DIR/../dist/static" && find . -type f -regextype posix-extended -regex "^.*\.(css|csv|gif|htm|html|ico|jpg|js|json|svg|txt|xml|webmanifest)$" -exec bash -c "cp {} {}.bak && gzip -9 {} && mv {}.bak {}" \; && cd -
+cd "$DIR/../dist/static" && find . -type f -regextype posix-extended -regex "^.*\.(css|csv|gif|htm|html|ico|jpg|js|json|svg|txt|xml|webmanifest)$" -exec brotli "{}" \; && cd -
+
+cd "$DIR/../dist" zip -9qry "dist.zip" "./" && cd -
 cd "$DIR/../dist/app" && zip -9qry "lambda.zip" "./" && cd -
+cd "$DIR/../dist/origin-request" && zip -9qry "lambda.zip" "./index.js" && cd -
 cd "$DIR/../dist/viewer-request" && zip -9qry "lambda.zip" "./index.js" && cd -
 cd "$DIR/../dist/custom-rds" && zip -9qry "lambda.zip" "./index.js" && cd -
 aws s3 cp "$DIR/../dist/app/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/app/lambda.zip"
+aws s3 cp "$DIR/../dist/origin-request/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/origin-request/lambda.zip"
 aws s3 cp "$DIR/../dist/viewer-request/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/viewer-request/lambda.zip"
 aws s3 cp "$DIR/../dist/custom-rds/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/custom-rds/lambda.zip"
 
@@ -24,7 +29,8 @@ aws s3 cp "$DIR/../dist/custom-rds/lambda.zip" "$S3_PATH_ARTIFACTS_COMMIT/custom
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.css" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "text/css"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.csv" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "text/csv"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.gif" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "image/gif"
-aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.htm" --include "*.html" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "text/html"
+# Cache pre-rendered pages for 300 seconds
+aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.htm" --include "*.html" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=300, public" --content-type "text/html"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.ico" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "image/x-icon"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.jpg" --include "*.jpeg" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "image/jpeg"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.js" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-type "application/javascript"
@@ -38,7 +44,8 @@ aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.css.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "text/css"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.csv.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "text/csv"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.gif.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "image/gif"
-aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.htm.br" --include "*.html.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "text/html"
+# Cache pre-rendered pages for 300 seconds
+aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.htm.br" --include "*.html.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=300, public" --content-encoding br --content-type "text/html"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.ico.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "image/x-icon"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.jpg.br" --include "*.jpeg.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "image/jpeg"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.js.br" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding br --content-type "application/javascript"
@@ -52,7 +59,8 @@ aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.css.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "text/css"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.csv.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "text/csv"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.gif.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "image/gif"
-aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.htm.gz" --include "*.html.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "text/html"
+# Cache pre-rendered pages for 300 seconds
+aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.htm.gz" --include "*.html.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=300, public" --content-encoding gzip --content-type "text/html"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.ico.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "image/x-icon"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.jpg.gz" --include "*.jpeg.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "image/jpeg"
 aws s3 sync "$DIR/../dist/static" "$S3_PATH_STATIC_BRANCH_SLUG" --exclude "*" --include "*.js.gz" --exclude "assets/*" --no-guess-mime-type --metadata-directive REPLACE --cache-control "max-age=43200, public" --content-encoding gzip --content-type "application/javascript"

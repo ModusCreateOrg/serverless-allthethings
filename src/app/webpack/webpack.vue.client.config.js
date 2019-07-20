@@ -1,8 +1,6 @@
 const path = require("path");
 
-const CompressionPlugin = require("compression-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const iltorbCompress = require("iltorb").compress;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const postcssPresetEnv = require("postcss-preset-env");
 const SWPrecacheWebpackPlugin = require("sw-precache-webpack-plugin");
@@ -36,22 +34,6 @@ const plugins = [
 if (process.env.NODE_ENV !== "development") {
   plugins.push(
     ...[
-      new CompressionPlugin({
-        exclude: "vue-ssr-client-manifest.json",
-        minRatio: 2,
-        // Not png
-        test: /\.(css|csv|gif|htm|html|ico|jpeg|jpg|js|json|svg|txt|webmanifest|xml)$/,
-      }),
-      new CompressionPlugin({
-        algorithm(input, compressionOptions, callback) {
-          return iltorbCompress(input, callback);
-        },
-        exclude: "vue-ssr-client-manifest.json",
-        filename: "[path].br[query]",
-        minRatio: 2,
-        // Not png
-        test: /\.(css|csv|gif|htm|html|ico|jpeg|jpg|js|json|svg|txt|webmanifest|xml)$/,
-      }),
       new SWPrecacheWebpackPlugin({
         cacheId: "serverless-allthethings",
         dontCacheBustUrlsMatching: /./,
@@ -59,12 +41,14 @@ if (process.env.NODE_ENV !== "development") {
           __dirname,
           "../../../dist/static/service-worker.js",
         ),
+        mergeStaticsConfig: true,
         minify: true,
         navigateFallback: "/pwa.html",
         navigateFallbackWhitelist: [/^\/pwa$/],
+        staticFileGlobs: [
+          path.resolve(__dirname, "../../../dist/static/pwa.html"),
+        ],
         staticFileGlobsIgnorePatterns: [
-          /^.*\.br$/,
-          /^.*\.gz$/,
           /\/browserconfig\.xml$/,
           /\/logo-.*\.png$/,
           /\/robots\.txt$/,

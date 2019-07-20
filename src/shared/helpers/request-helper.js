@@ -4,7 +4,14 @@ const HEADER_STRICT_TRANSPORT_SECURITY_KEY = "strict-transport-security";
 const HEADER_STRICT_TRANSPORT_SECURITY_VALUE =
   "max-age=31536000; includeSubDomains; preload";
 
+const HEADER_X_URI = "x-uri";
+
+const ERROR_URI_PREFIX = "/error/";
+const INVALID_URI = "/path/to/invalid";
+
 const HEADER_VALUE_KEY = "value";
+
+const INDEX_HTML_URI_PART = "/index.html";
 
 const isNotLowerCaseUri = ({ uri = "" } = { uri: "" }) =>
   uri !== uri.toLowerCase();
@@ -14,6 +21,12 @@ const isTrailingSlash = ({ uri = "" } = { uri: "" }) =>
 
 const isQueryString = ({ queryString = "" } = { queryString: "" }) =>
   queryString ? true : false;
+
+const isIndexHtmlPath = ({ uri = "" } = { uri: "" }) =>
+  uri.endsWith(INDEX_HTML_URI_PART);
+
+const isErrorPath = ({ uri = "" } = { uri: "" }) =>
+  uri.startsWith(ERROR_URI_PREFIX);
 
 const on301 = (
   { toUri = "", uri = "", callback = () => {} } = {
@@ -40,7 +53,7 @@ const on301 = (
   });
 };
 
-const isInvalidRequest = (
+const isInvalidRequestRequiringRedirect = (
   { request = { headers: {}, querystring: "", uri: "" } } = {
     request: { headers: {}, querystring: "", uri: "" },
   },
@@ -50,11 +63,13 @@ const isInvalidRequest = (
   return (
     isTrailingSlash({ uri }) ||
     isNotLowerCaseUri({ uri }) ||
-    isQueryString({ querystring })
+    isQueryString({ querystring }) ||
+    isIndexHtmlPath({ uri }) ||
+    isErrorPath({ uri })
   );
 };
 
-const onInvalidRequest = (
+const onInvalidRequestRequiringRedirect = (
   {
     request = { headers: {}, querystring: "", uri: "" },
     callback = () => {},
@@ -80,7 +95,30 @@ const onInvalidRequest = (
   }
 };
 
+const isInvalidRequestRequiringRewrite = (
+  { uri = "" } = {
+    uri: "",
+  },
+) => {
+  return isIndexHtmlPath({ uri }) || isErrorPath({ uri });
+};
+
+const onInvalidRequestRequiringRewrite = (
+  { request = {} } = {
+    request: {},
+  },
+) => {
+  console.warn("WARN: Invalid request requiring rewrite", {
+    uri: request.uri,
+  });
+  // Replace with a URI that will result in an HTTP 404 error
+  request.uri = INVALID_URI;
+};
+
 module.exports = {
-  isInvalidRequest,
-  onInvalidRequest,
+  HEADER_X_URI,
+  isInvalidRequestRequiringRedirect,
+  isInvalidRequestRequiringRewrite,
+  onInvalidRequestRequiringRedirect,
+  onInvalidRequestRequiringRewrite,
 };
