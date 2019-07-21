@@ -27,7 +27,7 @@ function getAcceptableEncodings({ headers = {} } = { headers: {} }) {
             )
             .trim(),
       )
-    : COMPRESSION_NONE_ENCODING;
+    : [COMPRESSION_NONE_ENCODING];
 }
 
 function getCompressedResponseProperties(

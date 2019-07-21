@@ -82,6 +82,7 @@
     "url": "https://github.com/ModusCreateOrg/serverless-allthethings"
   },
   "scripts": {
+    "archive": "bash ./bin/archive.sh",
     "build": "bash ./bin/build.sh",
     "lint": "bash ./bin/lint.sh",
     "lint-check-rules": "bash ./bin/lint-check-rules.sh",

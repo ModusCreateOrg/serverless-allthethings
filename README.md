@@ -86,7 +86,7 @@ Project description - one or two paragraphs. The enemy is dark and creates major
 - Start the development server. You can access the website at: `http://localhost`
 
   ```bash
-  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind -p 80:80 -e APPSYNC_GRAPHQL_API_REGION="us-east-1" -e APPSYNC_GRAPHQL_API_URL="null" serverless-allthethings
+  docker run --mount src="$(pwd)",target=/opt/serverless-allthethings,type=bind -p 80:80 -e APPSYNC_GRAPHQL_API_REGION="us-east-1" serverless-allthethings
   ```
 
 #### Lint

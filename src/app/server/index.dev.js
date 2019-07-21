@@ -137,7 +137,7 @@ require("./dev/static")({ app });
 app.get("*", (request, response, next) => {
   readyPromise.then(() => {
     response.setHeader("cache-control", "no-cache, no-store, must-revalidate");
-    response.setHeader("content-type", "text/html");
+    response.setHeader("content-type", "text/html; charset=utf-8");
 
     const bundleRendererContext = {
       state: null,

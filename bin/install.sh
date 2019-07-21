@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Define current directory
+# Define current directory
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "${DIR}" ]]; then DIR="${PWD}"; fi
 

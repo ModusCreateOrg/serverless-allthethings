@@ -17,6 +17,9 @@ const plugins = [
   }),
   new webpack.DefinePlugin({
     "process.env.VUE_ENV": JSON.stringify("client"),
+    "process.env.APPSYNC_GRAPHQL_API_REGION": JSON.stringify(
+      process.env.APPSYNC_GRAPHQL_API_REGION,
+    ),
   }),
   // Export the Vue SSR client manifest to a temporary location so that it can be imported into the lambda bundle (in ../lambda.js)
   new VueSSRClientPlugin({

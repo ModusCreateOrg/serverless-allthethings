@@ -9,7 +9,7 @@ const createAppSyncClient = () => {
       },
       disableOffline: process.env.VUE_ENV === "server",
       region: process.env.APPSYNC_GRAPHQL_API_REGION,
-      url: process.env.APPSYNC_GRAPHQL_API_URL,
+      url: "/api/graphql",
     },
     {
       defaultOptions: {

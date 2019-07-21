@@ -1,8 +1,5 @@
 #!/bin/bash
-
-set -e
-set -u
-set -o pipefail
+set -euo pipefail
 
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="${PWD}"; fi

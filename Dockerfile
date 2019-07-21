@@ -27,6 +27,9 @@ RUN yum install -y python3
 RUN python3 -m pip install awscli
 
 # Install gzip
+RUN yum install -y zip
+
+# Install gzip
 RUN yum install -y gzip
 
 # Install brotli
