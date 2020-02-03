@@ -121,9 +121,9 @@ aws s3 sync "${PATH_DIST_STATIC_ASSETS}" "${S3_PATH_STATIC_BRANCH_SLUG_ASSETS}" 
 aws s3 sync "${PATH_DIST_STATIC_ASSETS}" "${S3_PATH_STATIC_BRANCH_SLUG_ASSETS}" --exclude "*" --include "*.webmanifest.gz" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_ONE_YEAR}" --content-encoding "gzip" --content-type "application/manifest+json"
 
 # Cache pwa.html for 300 seconds
-aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "pwa.htm" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-type "text/html; charset=utf-8"
-aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "pwa.htm.br" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-encoding "br" --content-type "text/html; charset=utf-8"
-aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "pwa.htm.gz" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-encoding "gzip" --content-type "text/html; charset=utf-8"
+aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "pwa.html" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-type "text/html; charset=utf-8"
+aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "pwa.html.br" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-encoding "br" --content-type "text/html; charset=utf-8"
+aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "pwa.html.gz" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-encoding "gzip" --content-type "text/html; charset=utf-8"
 
 # Cache service-worker.js for 300 seconds
 aws s3 sync "${PATH_DIST_STATIC}" "${S3_PATH_STATIC_BRANCH_SLUG}" --exclude "*" --include "service-worker.js" --no-guess-mime-type --metadata-directive REPLACE --cache-control "${CACHE_CONTROL_FIVE_MINUTES}" --content-type "application/javascript"

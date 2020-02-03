@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.496.0",
+    "aws-sdk": "^2.610.0",
     "cfn-response": "^1.0.1"
   },
   "devDependencies": {
     "friendly-errors-webpack-plugin": "^1.7.0",
-    "terser-webpack-plugin": "^1.3.0",
-    "webpack": "^4.36.1"
+    "terser-webpack-plugin": "^1.4.3",
+    "webpack": "^4.41.5"
   }
 }
