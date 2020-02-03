@@ -16,16 +16,17 @@ function getAcceptableEncodings({ headers = {} } = { headers: {} }) {
     HEADER_ACCEPT_ENCODING in headers &&
     headers[HEADER_ACCEPT_ENCODING].length &&
     HEADER_VALUE_KEY in headers[HEADER_ACCEPT_ENCODING][0]
-    ? headers[HEADER_ACCEPT_ENCODING][0][HEADER_VALUE_KEY].split(",").map(
-        (encoding) =>
-          encoding
-            .substring(
-              0,
-              encoding.indexOf(";") > -1
-                ? encoding.indexOf(";")
-                : encoding.length,
-            )
-            .trim(),
+    ? headers[HEADER_ACCEPT_ENCODING][0][HEADER_VALUE_KEY].split(
+        ",",
+      ).map((encoding) =>
+        encoding
+          .substring(
+            0,
+            encoding.indexOf(";") > -1
+              ? encoding.indexOf(";")
+              : encoding.length,
+          )
+          .trim(),
       )
     : [COMPRESSION_NONE_ENCODING];
 }
