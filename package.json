@@ -2,7 +2,7 @@
   "author": "Lucas Still <lucas.still@moduscreate.com>",
   "dependencies": {
     "amazon-cognito-identity-js": "^3.2.2",
-    "aws-appsync": "^1.8.1",
+    "aws-appsync": "^4.1.9",
     "core-js": "^3.6.4",
     "graphql-tag": "^2.10.1",
     "vue": "^2.6.11",
@@ -22,7 +22,7 @@
     "@babel/register": "^7.8.3",
     "@babel/runtime": "^7.8.4",
     "@vue/test-utils": "^1.0.0-beta.31",
-    "aws-sdk": "^2.610.0",
+    "aws-sdk": "^2.1354.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.9.0",
