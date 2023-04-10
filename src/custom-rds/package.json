@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.610.0",
+    "aws-sdk": "^2.1354.0",
     "cfn-response": "^1.0.1"
   },
   "devDependencies": {
